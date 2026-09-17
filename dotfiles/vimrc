@@ -1,0 +1,116 @@
+
+set mouse=
+set paste
+
+autocmd BufRead,BufNewFile *vifmrc set filetype=vim
+
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" Plugin 'tpope/vim-fugitive'
+Plugin 'skywind3000/asyncrun.vim'
+Plugin 'guns/xterm-color-table.vim'
+" Plugin 'francoiscabrol/ranger.vim'
+" Plugin 'cocopon/vaffle.vim'
+" Plugin 'tpope/vim-vinegar'
+" Plugin 'jeetsukumaran/vim-buffergator'
+" Plugin 'ctrlpvim/ctrlp.vim'
+" Plugin 'python-mode/python-mode', { 'branch': 'develop' }
+" Plugin 'plytophogy/vim-virtualenv'
+" Plugin 'davidhalter/jedi-vim'
+Plugin 'patstockwell/vim-monokai-tasty'
+" Plugin 'NLKNguyen/papercolor-theme'
+Plugin 'mhartington/oceanic-next'
+call vundle#end()            " required
+
+filetype plugin indent on    " required
+
+" Disable mouse support
+set mouse=
+
+" Enable paste mode & disable auto-indentation
+set paste
+set noautoindent
+set nosmartindent
+set nocindent
+
+syntax on
+"set shiftwidth=2
+set tabstop=4
+" set number
+set ruler
+set visualbell
+
+set wildmenu                    " turn on wild menu :e <Tab>
+set lazyredraw                  " don't redraw while in macros
+" set scrolloff=5                 " keep at least 5 lines around the cursor
+
+set showcmd             " Show (partial) command in status line.
+set showmatch           " Show matching brackets.
+set ignorecase          " Do case insensitive matching
+set smartcase           " Do smart case matching
+set incsearch           " Incremental search
+" set hidden              " Hide buffers when they are abandoned
+
+" set background=dark
+colorscheme OceanicNext
+" set termguicolors
+" colorscheme vim-monokai-tasty
+
+" let g:palenight_terminal_italics=1
+
+" Quick run via <F5>
+nnoremap ,r :call <SID>compile_and_run()<CR>
+nnoremap <leader>x :AsyncRun source ~/.venv/cv/bin/activate; python %
+
+function! s:compile_and_run()
+    exec 'w'
+    if &filetype == 'c'
+        exec "AsyncRun! gcc % -o %<"
+    elseif &filetype == 'cpp'
+       exec "AsyncRun! g++ -std=c++11 % -o %<"
+    elseif &filetype == 'java'
+       exec "AsyncRun! javac %; time java %<"
+    elseif &filetype == 'sh'
+       exec "AsyncRun! time bash %"
+    elseif &filetype == 'python'
+       exec "AsyncRun! time python %"
+    endif
+endfunction
+
+" asyncrun now has an option for opening quickfix automatically
+let g:asyncrun_open = 5
+set encoding=utf-8
+set fileencoding=utf-8
+
+
+let g:netrw_banner       = 0
+let g:netrw_keepdir      = 0
+let g:netrw_liststyle    = 1 " or 3
+let g:netrw_bufsettings = 'noma nomod nu nowrap ro nobl'
+" absolute width of netrw window
+let g:netrw_winsize = -28
+" let g:netrw_sort_options = 'i'
+
+" autocmd VimEnter * if isdirectory(expand('<afile>')) | Explore | endif
+" autocmd VimEnter * if !argc() | Explore | endif
+"
+
+map q <Nop>
+
+
+map <silent> <C-O> :Lexplore<CR>
+
+" Commenting blocks of code.
+autocmd FileType c,cpp,java,scala let b:comment_leader = '// '
+autocmd FileType sh,ruby,python   let b:comment_leader = '# '
+autocmd FileType conf,fstab       let b:comment_leader = '# '
+autocmd FileType vim              let b:comment_leader = '" '
+noremap <silent> ,cc :<C-B>silent <C-E>s/^/<C-R>=escape(b:comment_leader,'\/')<CR>/<CR>:nohlsearch<CR>
+noremap <silent> ,cu :<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<CR>//e<CR>:nohlsearch<CR>
