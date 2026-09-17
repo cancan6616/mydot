@@ -9,15 +9,16 @@ mydot/
 ├── dotfiles/
 │   ├── vimrc                   # Vim 配置
 │   └── vifm/
-│       └── colors/
-│           └── ph.vifm         # Vifm ph 配色方案
+│       ├── colors/
+│       │   └── ph.vifm         # Vifm ph 配色方案
+│       └── vifmrc              # Vifm 完备配置（含常用快捷键及 ph 配色）
 ├── install.sh                  # 安装与初始化脚本
 └── README.md
 ```
 
 ## 新机器一键安装
 
-在目标机器上执行以下命令（将 `<username>` 替换为实际 GitHub 用户名）：
+在目标机器上执行以下命令：
 
 ```bash
 git clone https://github.com/cancan6616/mydot.git ~/.mydot && bash ~/.mydot/install.sh
@@ -31,13 +32,15 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/cancan6616/mydot/main/in
 
 ### 脚本执行内容
 
-1. **Vim**:
+1. **环境依赖检测与自动安装**:
+   - 自动检测并安装缺失的 `git` 和 `vifm`（支持 apt / dnf / yum / pacman / apk / brew）
+2. **Vim**:
    - 克隆 Vundle 至 `~/.vim/bundle/Vundle.vim`
    - 软链接 `~/.vimrc` 到仓库配置（若原配置存在则自动备份）
    - 调用 `vim +PluginInstall +qall` 静默安装配置内插件
-2. **Vifm**:
+3. **Vifm**:
    - 创建 `~/.vifm/colors` 并软链接 `ph.vifm`
-   - 检查 `~/.vifm/vifmrc`，写入或追加 `colorscheme ph`
+   - 若不存在 `~/.vifm/vifmrc`，直接软链接仓库内完备配置（避免只写一行导致基础快捷键丢失）；若已有 `~/.vifm/vifmrc` 则追加 `colorscheme ph`
 
 ## 推送至 GitHub
 
