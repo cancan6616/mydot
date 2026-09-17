@@ -10,10 +10,46 @@ while [ -h "$SOURCE" ]; do
 done
 SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+# 检查并安装 git
+ensure_git() {
+    if command -v git >/dev/null 2>&1; then
+        return 0
+    fi
+    echo "[INFO] 未检测到 git，尝试自动安装..."
+    local SUDO=""
+    if [ "$(id -u)" -ne 0 ]; then
+        if command -v sudo >/dev/null 2>&1; then
+            SUDO="sudo"
+        else
+            echo "错误: 系统未安装 git 且无 sudo 权限，无法自动安装。"
+            exit 1
+        fi
+    fi
+
+    if command -v apt-get >/dev/null 2>&1; then
+        $SUDO apt-get update -y && $SUDO apt-get install -y git
+    elif command -v dnf >/dev/null 2>&1; then
+        $SUDO dnf install -y git
+    elif command -v yum >/dev/null 2>&1; then
+        $SUDO yum install -y git
+    elif command -v pacman >/dev/null 2>&1; then
+        $SUDO pacman -Sy --noconfirm git
+    elif command -v apk >/dev/null 2>&1; then
+        $SUDO apk add --no-cache git
+    elif command -v brew >/dev/null 2>&1; then
+        brew install git
+    else
+        echo "错误: 未识别的包管理器，请手动安装 git 后重试。"
+        exit 1
+    fi
+}
+
+ensure_git
+
 # 若通过 curl 管道直接执行，克隆仓库至本地
 TARGET_DIR="${HOME}/.mydot"
 if [ ! -f "${SCRIPT_DIR}/dotfiles/vimrc" ]; then
-    REPO_URL="${1:-${REPO_URL:-https://github.com/cancanyou/mydot.git}}"
+    REPO_URL="${1:-${REPO_URL:-https://github.com/cancan6616/mydot.git}}"
     if [ ! -d "$TARGET_DIR" ]; then
         echo "[INFO] 克隆配置仓库到 $TARGET_DIR..."
         git clone "$REPO_URL" "$TARGET_DIR"

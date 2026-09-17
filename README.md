@@ -20,13 +20,13 @@ mydot/
 在目标机器上执行以下命令（将 `<username>` 替换为实际 GitHub 用户名）：
 
 ```bash
-git clone https://github.com/cancanyou/mydot.git ~/.mydot && bash ~/.mydot/install.sh
+git clone https://github.com/cancan6616/mydot.git ~/.mydot && bash ~/.mydot/install.sh
 ```
 
 或无需先手动 clone，直接单行执行：
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/cancanyou/mydot/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/cancan6616/mydot/main/install.sh)"
 ```
 
 ### 脚本执行内容
@@ -44,6 +44,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/cancanyou/mydot/main/ins
 在当前目录完成仓库初始化并推送到目标 GitHub 账号：
 
 ```bash
-git remote add origin git@github.com:cancanyou/mydot.git
+git remote add origin git@github.com:cancan6616/mydot.git
 git push -u origin main
 ```
