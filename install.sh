@@ -107,43 +107,48 @@ fi
 echo "[INFO] 检查并配置 vifm..."
 install_package vifm || true
 
-VIFM_DIR="${HOME}/.vifm"
-VIFM_COLORS_DIR="${VIFM_DIR}/colors"
-mkdir -p "$VIFM_COLORS_DIR"
+VIFM_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/vifm"
+VIFM_LEGACY_DIR="${HOME}/.vifm"
 
-PH_THEME_SOURCE="${DOTFILES_DIR}/vifm/colors/ph.vifm"
-PH_THEME_TARGET="${VIFM_COLORS_DIR}/ph.vifm"
-
-if [ -f "$PH_THEME_SOURCE" ]; then
-    ln -sf "$PH_THEME_SOURCE" "$PH_THEME_TARGET"
-    echo "[INFO] 已链接 $PH_THEME_TARGET -> $PH_THEME_SOURCE"
-else
-    echo "[INFO] 下载 ph.vifm..."
-    if command -v curl >/dev/null 2>&1; then
-        curl -fsSL https://raw.githubusercontent.com/vifm/vifm-colors/master/ph.vifm -o "$PH_THEME_TARGET"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -qO "$PH_THEME_TARGET" https://raw.githubusercontent.com/vifm/vifm-colors/master/ph.vifm
-    fi
+# 现代路径与传统兼容路径列表
+TARGET_DIRS=("$VIFM_CONFIG_DIR")
+if [ ! -e "$VIFM_LEGACY_DIR" ]; then
+    ln -sf "$VIFM_CONFIG_DIR" "$VIFM_LEGACY_DIR"
+elif [ -d "$VIFM_LEGACY_DIR" ] && [ ! -L "$VIFM_LEGACY_DIR" ]; then
+    TARGET_DIRS+=("$VIFM_LEGACY_DIR")
 fi
 
-VIFMRC_TARGET="${VIFM_DIR}/vifmrc"
+PH_THEME_SOURCE="${DOTFILES_DIR}/vifm/colors/ph.vifm"
 VIFMRC_SOURCE="${DOTFILES_DIR}/vifm/vifmrc"
 
-if [ ! -f "$VIFMRC_TARGET" ]; then
+for DIR in "${TARGET_DIRS[@]}"; do
+    mkdir -p "${DIR}/colors"
+    PH_THEME_TARGET="${DIR}/colors/ph.vifm"
+    if [ -f "$PH_THEME_SOURCE" ]; then
+        ln -sf "$PH_THEME_SOURCE" "$PH_THEME_TARGET"
+        echo "[INFO] 已链接 $PH_THEME_TARGET -> $PH_THEME_SOURCE"
+    elif [ ! -f "$PH_THEME_TARGET" ]; then
+        echo "[INFO] 下载 ph.vifm..."
+        if command -v curl >/dev/null 2>&1; then
+            curl -fsSL https://raw.githubusercontent.com/vifm/vifm-colors/master/ph.vifm -o "$PH_THEME_TARGET"
+        elif command -v wget >/dev/null 2>&1; then
+            wget -qO "$PH_THEME_TARGET" https://raw.githubusercontent.com/vifm/vifm-colors/master/ph.vifm
+        fi
+    fi
+
+    VIFMRC_TARGET="${DIR}/vifmrc"
     if [ -f "$VIFMRC_SOURCE" ]; then
+        if [ -f "$VIFMRC_TARGET" ] && [ ! -L "$VIFMRC_TARGET" ]; then
+            BACKUP="${VIFMRC_TARGET}.bak.$(date +%Y%m%d%H%M%S)"
+            echo "[INFO] 备份现有 vifmrc 至 $BACKUP"
+            mv "$VIFMRC_TARGET" "$BACKUP"
+        fi
         ln -sf "$VIFMRC_SOURCE" "$VIFMRC_TARGET"
-        echo "[INFO] 已链接完备默认配置 $VIFMRC_TARGET -> $VIFMRC_SOURCE"
-    else
+        echo "[INFO] 已链接 $VIFMRC_TARGET -> $VIFMRC_SOURCE"
+    elif [ ! -f "$VIFMRC_TARGET" ]; then
         echo "colorscheme ph" > "$VIFMRC_TARGET"
         echo "[INFO] 创建 $VIFMRC_TARGET 并设置 colorscheme ph"
     fi
-else
-    if ! grep -q "colorscheme ph" "$VIFMRC_TARGET"; then
-        echo "colorscheme ph" >> "$VIFMRC_TARGET"
-        echo "[INFO] 追加 colorscheme ph 至现有 $VIFMRC_TARGET"
-    else
-        echo "[INFO] $VIFMRC_TARGET 已包含 colorscheme ph"
-    fi
-fi
+done
 
 echo "[INFO] 安装完成。"

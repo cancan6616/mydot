@@ -65,7 +65,7 @@ set trash
 " be counterproductive for certain workflows.  The main effect is that leaving
 " command-line and menu modes (whether aborting them or not) doesn't drop
 " selection.
-set nokeepsel
+" set nokeepsel
 
 " What should be saved automatically on restarting vifm.  Drop "savedirs"
 " value if you don't want vifm to remember last visited directories for you.
