@@ -107,21 +107,11 @@ fi
 echo "[INFO] 检查并配置 vifm..."
 install_package vifm || true
 
-VIFM_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/vifm"
-VIFM_LEGACY_DIR="${HOME}/.vifm"
-
-# 现代路径与传统兼容路径列表
-TARGET_DIRS=("$VIFM_CONFIG_DIR")
-if [ ! -e "$VIFM_LEGACY_DIR" ]; then
-    ln -sf "$VIFM_CONFIG_DIR" "$VIFM_LEGACY_DIR"
-elif [ -d "$VIFM_LEGACY_DIR" ] && [ ! -L "$VIFM_LEGACY_DIR" ]; then
-    TARGET_DIRS+=("$VIFM_LEGACY_DIR")
-fi
-
+VIFM_DIRS=("${HOME}/.vifm" "${XDG_CONFIG_HOME:-${HOME}/.config}/vifm")
 PH_THEME_SOURCE="${DOTFILES_DIR}/vifm/colors/ph.vifm"
 VIFMRC_SOURCE="${DOTFILES_DIR}/vifm/vifmrc"
 
-for DIR in "${TARGET_DIRS[@]}"; do
+for DIR in "${VIFM_DIRS[@]}"; do
     mkdir -p "${DIR}/colors"
     PH_THEME_TARGET="${DIR}/colors/ph.vifm"
     if [ -f "$PH_THEME_SOURCE" ]; then
